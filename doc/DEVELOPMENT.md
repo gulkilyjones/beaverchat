@@ -1,13 +1,13 @@
-# BookChat Development Guide
+# BeaverChat Development Guide
 
-This guide provides information for developers who want to contribute to or extend BookChat.
+This guide provides information for developers who want to contribute to or extend BeaverChat.
 
 ## Development Environment Setup
 
 1. Fork and clone the repository:
    ```bash
-   git clone https://github.com/yourusername/bookchat.git
-   cd bookchat
+   git clone https://github.com/yourusername/beaverchat.git
+   cd beaverchat
    ```
 
 2. Set up development environment:
@@ -26,7 +26,7 @@ This guide provides information for developers who want to contribute to or exte
 ## Project Structure
 
 ```
-bookchat/
+beaverchat/
 ├── server.py           # Main server implementation
 ├── git_manager.py      # Git and key management
 ├── storage/           # Storage backend implementations
@@ -129,7 +129,7 @@ class GitManager:
 
 1. Enable debug logging:
    ```bash
-   export BOOKCHAT_DEBUG=true
+   export BEAVERCHAT_DEBUG=true
    python server.py
    ```
 

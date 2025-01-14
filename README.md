@@ -1,4 +1,4 @@
-# BookChat - Git-Backed Messaging Application
+# BeaverChat - Git-Backed Messaging Application
 
 A lightweight, Git-backed web-based messaging application that allows users to communicate through a simple interface while maintaining message history in a Git repository.
 
@@ -82,7 +82,7 @@ bookchat/
 
 ## Deployment Options
 
-BookChat supports multiple deployment options:
+BeaverChat supports multiple deployment options:
 
 ### 1. GitHub Pages (Serverless)
 - Use Git storage backend
@@ -102,7 +102,7 @@ BookChat supports multiple deployment options:
 
 ## Logging and Debugging
 
-BookChat includes a comprehensive logging system with multiple debug levels:
+BeaverChat includes a comprehensive logging system with multiple debug levels:
 
 ### Log Files
 

@@ -1,4 +1,4 @@
-# BookChat Application Specification
+# BeaverChat Application Specification
 
 ## Quick Start Guide
 
@@ -11,7 +11,7 @@
 For detailed implementation steps, see the [Core Components](#core-components) section.
 
 ## Overview
-BookChat is a secure, signature-verified chat application that uses Git for message storage and RSA signatures for message verification. Users can send messages and change usernames with cryptographic verification. The application optionally supports GitHub synchronization for message persistence.
+BeaverChat is a secure, signature-verified chat application that uses Git for message storage and RSA signatures for message verification. Users can send messages and change usernames with cryptographic verification. The application optionally supports GitHub synchronization for message persistence.
 
 ## Core Components
 
@@ -235,7 +235,7 @@ class ChatRequestHandler(SimpleHTTPRequestHandler):
 
 ## File Structure
 ```
-bookchat/
+beaverchat/
 ├── server.py              # HTTP server
 ├── git_manager.py         # Git and message management
 ├── templates/

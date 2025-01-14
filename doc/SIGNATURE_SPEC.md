@@ -1,7 +1,7 @@
-# BookChat Message Signing Specification
+# BeaverChat Message Signing Specification
 
 ## Overview
-BookChat implements a robust public key-based message signing system to verify message authenticity. Each user's messages are signed with their private key and can be verified using their public key.
+BeaverChat implements a robust public key-based message signing system to verify message authenticity. Each user's messages are signed with their private key and can be verified using their public key.
 
 ## Key Management
 
