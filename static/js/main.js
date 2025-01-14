@@ -3,6 +3,9 @@
 let currentUsername = 'anonymous';
 let messageVerificationEnabled = false;
 
+// Available reactions
+const AVAILABLE_REACTIONS = ['👍', '❤️', '😄', '😮', '👏', '🎉'];
+
 // Initialize everything
 document.addEventListener('DOMContentLoaded', async () => {
     await verifyUsername();
@@ -54,7 +57,6 @@ async function loadMessages() {
             messages = messages.filter(message => message.verified && message.verified.toLowerCase() === 'true');
         }
         
-        const messagesDiv = document.getElementById('messages');
         const messagesContainer = document.getElementById('messages-container');
         messagesContainer.innerHTML = '';
         
@@ -67,8 +69,14 @@ async function loadMessages() {
             messagesContainer.appendChild(createMessageElement(message));
         }
         
-        // Scroll to bottom
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        // Initial load should instantly jump to bottom
+        const messagesDiv = document.getElementById('messages');
+        if (messagesDiv) {
+            messagesDiv.scrollTo({
+                top: messagesDiv.scrollHeight,
+                behavior: 'instant'
+            });
+        }
         
         // Update current username
         if (data.currentUsername) {
@@ -167,7 +175,116 @@ function createMessageElement(message) {
     content.textContent = message.content;
     messageDiv.appendChild(content);
     
+    // Add reactions section
+    const reactionsDiv = document.createElement('div');
+    reactionsDiv.className = 'message-reactions';
+    
+    // Add reaction button
+    const reactionButton = document.createElement('button');
+    reactionButton.className = 'reaction-button';
+    reactionButton.innerHTML = '😀';
+    reactionButton.title = 'Add reaction';
+    reactionButton.onclick = (e) => {
+        e.stopPropagation();
+        toggleReactionPopup(message.id);
+    };
+    reactionsDiv.appendChild(reactionButton);
+    
+    // Add existing reactions
+    if (message.reactions) {
+        const reactions = parseReactions(message.reactions);
+        for (const [emoji, users] of Object.entries(reactions)) {
+            const reactionCount = document.createElement('div');
+            reactionCount.className = 'reaction-count';
+            if (users.includes(currentUsername)) {
+                reactionCount.classList.add('active');
+            }
+            reactionCount.innerHTML = `${emoji} ${users.length}`;
+            reactionCount.onclick = (e) => {
+                e.stopPropagation();
+                toggleReaction(message.id, emoji);
+            };
+            reactionsDiv.appendChild(reactionCount);
+        }
+    }
+    
+    messageDiv.appendChild(reactionsDiv);
     return messageDiv;
+}
+
+function toggleReactionPopup(messageId) {
+    // Remove any existing popups
+    const existingPopup = document.querySelector('.reaction-popup');
+    if (existingPopup) {
+        existingPopup.remove();
+    }
+    
+    const messageDiv = document.querySelector(`[data-message-id="${messageId}"]`);
+    if (!messageDiv) return;
+    
+    const popup = document.createElement('div');
+    popup.className = 'reaction-popup';
+    
+    AVAILABLE_REACTIONS.forEach(emoji => {
+        const emojiButton = document.createElement('div');
+        emojiButton.className = 'reaction-emoji';
+        emojiButton.innerHTML = emoji;
+        emojiButton.onclick = (e) => {
+            e.stopPropagation();
+            toggleReaction(messageId, emoji);
+            popup.remove();
+        };
+        popup.appendChild(emojiButton);
+    });
+    
+    messageDiv.appendChild(popup);
+    
+    // Close popup when clicking outside
+    document.addEventListener('click', function closePopup(e) {
+        if (!popup.contains(e.target)) {
+            popup.remove();
+            document.removeEventListener('click', closePopup);
+        }
+    });
+}
+
+function parseReactions(reactionsStr) {
+    if (!reactionsStr) return {};
+    const reactions = {};
+    const pairs = reactionsStr.split(',').filter(Boolean);
+    for (const pair of pairs) {
+        if (!pair.includes(':')) continue;
+        const [username, emoji] = pair.split(':');
+        if (!reactions[emoji]) {
+            reactions[emoji] = [];
+        }
+        reactions[emoji].push(username);
+    }
+    return reactions;
+}
+
+async function toggleReaction(messageId, emoji) {
+    try {
+        const response = await fetch(`/messages/${messageId}/reactions`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                emoji,
+                username: currentUsername
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        // Reload messages to show updated reactions
+        await loadMessages();
+    } catch (error) {
+        console.error('Error toggling reaction:', error);
+    }
 }
 
 async function sendMessage(content, type = 'message') {
@@ -185,11 +302,12 @@ async function sendMessage(content, type = 'message') {
         // Immediately add message to UI
         const messagesContainer = document.getElementById('messages-container');
         messagesContainer.appendChild(createMessageElement(tempMessage));
+        scrollToBottom();
         
-        // Scroll to bottom
-        const messagesDiv = document.getElementById('messages');
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
-
+        // Clear input
+        const messageInput = document.getElementById('message-input');
+        messageInput.value = '';
+        
         // Send to server
         const response = await fetch('/messages', {
             method: 'POST',
@@ -399,6 +517,17 @@ function setupMessageInput() {
                     }
                 }
             }
+        });
+    }
+}
+
+// Function to scroll messages to bottom
+function scrollToBottom() {
+    const messagesDiv = document.getElementById('messages');
+    if (messagesDiv) {
+        messagesDiv.scrollTo({
+            top: messagesDiv.scrollHeight,
+            behavior: 'smooth'
         });
     }
 }

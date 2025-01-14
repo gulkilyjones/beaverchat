@@ -54,15 +54,17 @@ body {
     font-family: system-ui, -apple-system, sans-serif;
     background-color: var(--bg-primary);
     color: var(--text-primary);
+    height: 100vh;
+    overflow: hidden;
 }
 
 .container {
     max-width: var(--container-max-width);
     margin: 0 auto;
-    padding-top: var(--header-height);
-    min-height: 100vh;
+    height: 100vh;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
 }
 
 /* Header */
@@ -151,15 +153,16 @@ body {
     flex: 1;
     overflow-y: auto;
     padding: 20px;
+    margin-top: var(--header-height);
     margin-bottom: var(--footer-height);
     scroll-behavior: smooth;
 }
 
 #messages-container {
-    margin-top: auto;
     display: flex;
     flex-direction: column;
     gap: 16px;
+    min-height: min-content;
 }
 
 /* Message bubbles */
@@ -820,4 +823,83 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
+}
+
+/* Message reactions */
+.message-reactions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+}
+
+.reaction-button {
+    display: none;
+    padding: 4px 8px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-size: 14px;
+    transition: all var(--transition-speed) ease;
+}
+
+.message:hover .reaction-button {
+    display: inline-flex;
+}
+
+.reaction-button:hover {
+    background: var(--message-bg);
+    color: var(--text-primary);
+}
+
+.reaction-popup {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    background: var(--message-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 8px;
+    display: flex;
+    gap: 8px;
+    box-shadow: 0 2px 8px var(--message-shadow);
+    z-index: 10;
+    animation: fadeIn var(--transition-speed) ease;
+}
+
+.reaction-emoji {
+    padding: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: transform var(--transition-speed) ease;
+    user-select: none;
+}
+
+.reaction-emoji:hover {
+    transform: scale(1.2);
+}
+
+.reaction-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.reaction-count.active {
+    background: var(--button-bg);
+    color: var(--button-text);
+    border-color: var(--button-bg);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
 }
