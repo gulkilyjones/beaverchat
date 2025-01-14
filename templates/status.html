@@ -3,132 +3,147 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BookChat - System Status & Verification</title>
+    <title>BeaverChat - System Status & Verification</title>
+    <meta name="description" content="BeaverChat system status and message verification instructions">
     <link rel="stylesheet" href="/static/css/style.css">
     <noscript>
         <link rel="stylesheet" href="/static/css/noscript.css">
     </noscript>
     <script src="/static/js/theme.js"></script>
     <script>
-        // Mark page as JavaScript-enabled
         document.documentElement.className = 'js';
     </script>
 </head>
 <body>
     <div class="container">
         <div class="header">
+            <a href="/" class="logo">BeaverChat</a>
             <h1>System Status & Verification</h1>
             <div class="nav-links">
                 <a href="/" class="nav-link">← Back to Chat</a>
-                <a href="https://github.com/{{ repo_name }}" target="_blank" class="nav-link">GitHub Repository</a>
-                <button class="theme-toggle js-only" id="theme-toggle">
-                    <span id="theme-toggle-text">🌙</span>
+                <a href="https://github.com/{{ repo_name }}" target="_blank" class="nav-link" rel="noopener">GitHub Repository</a>
+                <button class="theme-toggle js-only" id="theme-toggle" aria-label="Toggle dark mode">
+                    <span id="theme-toggle-text" aria-hidden="true">🌙</span>
                 </button>
             </div>
         </div>
         
-        <div class="verification-section">
-            <h2>Current System Status</h2>
-            <p>
-                <span class="status-indicator {{ 'status-good' if git_status else 'status-error' }}"></span>
-                Git Repository Status: {{ "Healthy" if git_status else "Error" }}
-            </p>
-            <p>
-                <span class="status-indicator {{ 'status-disabled' if not message_verification_enabled else ('status-good' if signature_status else 'status-error') }}"></span>
-                Signature System: {{ "Disabled" if not message_verification_enabled else ("Operational" if signature_status else "Error") }}
-                {% if not message_verification_enabled %}
-                <span class="status-note">(MESSAGE_VERIFICATION is set to false)</span>
-                {% endif %}
-            </p>
-            <p>Current System Time: <span class="timestamp">{{ current_time }}</span></p>
-            <p>Latest Commit: <a href="https://github.com/{{ repo_name }}/commit/{{ latest_commit }}" target="_blank" class="github-link"><code>{{ latest_commit[:8] }}</code></a></p>
-            <p>Messages in System: <strong>{{ current_message_count }}</strong></p>
-            <p>Messages in Archives: <strong>{{ archived_message_count }}</strong></p>
-        </div>
-
-        <div class="verification-section">
-            <h2>Independent Verification Instructions</h2>
-            <p>To verify message integrity without relying on BookChat's code, follow these steps:</p>
-            
-            <h3>1. Message Structure</h3>
-            <p>Messages are stored in the <code>messages/</code> directory with the following components:</p>
-            <ul>
-                <li>Message content</li>
-                <li>Git commit hash</li>
-                <li>Timestamp</li>
-                <li>OpenSSL-based digital signature</li>
-                <li>Author information</li>
-                <li>Parent message ID (for threaded conversations)</li>
-            </ul>
-
-            <h3>2. Command-line Verification</h3>
-            <div class="code-block">
-                <div class="code-explanation">
-                    <p>These commands extract and verify the message's digital signature:</p>
+        <main class="status-content">
+            <section class="verification-section">
+                <h2>Current System Status</h2>
+                <div class="status-grid">
+                    <p>
+                        <span class="status-indicator {{ 'status-good' if git_status else 'status-error' }}" aria-hidden="true"></span>
+                        Git Repository Status: <strong>{{ "Healthy" if git_status else "Error" }}</strong>
+                    </p>
+                    <p>
+                        <span class="status-indicator {{ 'status-disabled' if not message_verification_enabled else ('status-good' if signature_status else 'status-error') }}" aria-hidden="true"></span>
+                        Signature System: <strong>{{ "Disabled" if not message_verification_enabled else ("Operational" if signature_status else "Error") }}</strong>
+                        {% if not message_verification_enabled %}
+                        <span class="status-note">(MESSAGE_VERIFICATION is set to false)</span>
+                        {% endif %}
+                    </p>
+                    <p>Current System Time: <span class="timestamp">{{ current_time }}</span></p>
+                    <p>Latest Commit: <a href="https://github.com/{{ repo_name }}/commit/{{ latest_commit }}" target="_blank" class="github-link" rel="noopener"><code>{{ latest_commit[:8] }}</code></a></p>
+                    <p>Messages in System: <strong>{{ current_message_count }}</strong></p>
+                    <p>Messages in Archives: <strong>{{ archived_message_count }}</strong></p>
                 </div>
-                <pre><code># Extract signature and content<br>
-grep -v "SIGNATURE:" message_file.txt > message_content.txt<br>
-grep "SIGNATURE:" message_file.txt | cut -d' ' -f2 > signature.hex<br>
-<br>
-# Convert signature format<br>
-xxd -r -p signature.hex > signature.bin<br>
-<br>
-# Verify with author's public key<br>
+            </section>
+
+            <section class="verification-section">
+                <h2>Independent Verification Instructions</h2>
+                <p>To verify message integrity without relying on BeaverChat's code, follow these steps:</p>
+                
+                <h3>1. Message Structure</h3>
+                <p>Messages are stored in the <code>messages/</code> directory with the following components:</p>
+                <ul>
+                    <li>Message content</li>
+                    <li>Git commit hash</li>
+                    <li>Timestamp</li>
+                    <li>OpenSSL-based digital signature</li>
+                    <li>Author information</li>
+                    <li>Parent message ID (for threaded conversations)</li>
+                </ul>
+
+                <h3>2. Command-line Verification</h3>
+                <div class="code-block">
+                    <div class="code-explanation">
+                        <p>These commands extract and verify the message's digital signature:</p>
+                    </div>
+                    <pre><code># Extract signature and content
+grep -v "SIGNATURE:" message_file.txt > message_content.txt
+grep "SIGNATURE:" message_file.txt | cut -d' ' -f2 > signature.hex
+
+# Convert signature format
+xxd -r -p signature.hex > signature.bin
+
+# Verify with author's public key
 openssl dgst -sha256 -verify author_public_key.pub -signature signature.bin message_content.txt</code></pre>
-            </div>
-
-            <h3>3. Git History Verification</h3>
-            <div class="code-block">
-                <div class="code-explanation">
-                    <p>These commands verify the message hasn't been modified:</p>
                 </div>
-                <pre><code># Check file history<br>
-git log --follow --patch message_file.txt<br>
-<br>
-# Verify current state<br>
-git rev-parse HEAD<br>
-git remote -v<br>
-git fetch origin<br>
+
+                <h3>3. Git History Verification</h3>
+                <div class="code-block">
+                    <div class="code-explanation">
+                        <p>These commands verify the message hasn't been modified:</p>
+                    </div>
+                    <pre><code># Check file history
+git log --follow --patch message_file.txt
+
+# Verify current state
+git rev-parse HEAD
+git remote -v
+git fetch origin
 git verify-commit origin/main</code></pre>
-            </div>
-
-            <h3>4. Timestamp Verification</h3>
-            <div class="code-block">
-                <div class="code-explanation">
-                    <p>These commands verify the message timestamp:</p>
                 </div>
-                <pre><code># Compare message and commit timestamps<br>
-git log --format=%ai -- message_file.txt | head -n1<br>
-<br>
-# Verify against known timestamp<br>
+
+                <h3>4. Timestamp Verification</h3>
+                <div class="code-block">
+                    <div class="code-explanation">
+                        <p>These commands verify the message timestamp:</p>
+                    </div>
+                    <pre><code># Compare message and commit timestamps
+git log --format=%ai -- message_file.txt | head -n1
 git log --since="{{ current_time }}" --format=%H message_file.txt</code></pre>
-            </div>
-        </div>
+                </div>
+            </section>
 
-        <div class="verification-section">
-            <h2>Public Keys</h2>
-            <p>Download trusted public keys for verification:</p>
-            {% for key in public_keys %}
-            <div>
-                <a href="/public_key/{{ key }}" class="download-link" download>Download {{ key }}</a>
-                <a href="https://github.com/{{ repo_name }}/blob/main/identity/public_keys/{{ key }}" target="_blank" class="github-link">View on GitHub</a>
-            </div>
-            {% endfor %}
-        </div>
+            <section class="verification-section">
+                <h2>Public Keys</h2>
+                <p>Download trusted public keys for verification:</p>
+                {% for key in public_keys %}
+                <div>
+                    <a href="/public_key/{{ key }}" class="download-link" download>Download {{ key }}</a>
+                    <a href="https://github.com/{{ repo_name }}/blob/main/identity/public_keys/{{ key }}" target="_blank" class="github-link">View on GitHub</a>
+                </div>
+                {% endfor %}
+            </section>
 
-        <div class="verification-section">
-            <h2>Security Recommendations</h2>
-            <ul>
-                <li>Maintain your own copies of trusted public keys</li>
-                <li>Verify GitHub commit signatures</li>
-                <li>Cross-reference timestamps with multiple sources</li>
-                <li>Use hardware security modules for key storage</li>
-                <li>Monitor git remote for unexpected changes</li>
-            </ul>
-            <p>
-                <a href="https://github.com/{{ repo_name }}/security" target="_blank" class="github-link">View Security Policy on GitHub</a>
-            </p>
-        </div>
+            <section class="verification-section">
+                <h2>Security Recommendations</h2>
+                <ul>
+                    <li>Maintain your own copies of trusted public keys</li>
+                    <li>Verify GitHub commit signatures</li>
+                    <li>Cross-reference timestamps with multiple sources</li>
+                    <li>Use hardware security modules for key storage</li>
+                    <li>Monitor git remote for unexpected changes</li>
+                </ul>
+                <p>
+                    <a href="https://github.com/{{ repo_name }}/security" target="_blank" class="github-link">View Security Policy on GitHub</a>
+                </p>
+            </section>
+
+            <section class="verification-section">
+                <h2>Additional Resources</h2>
+                <ul>
+                    <li><a href="https://github.com/{{ repo_name }}/blob/main/doc/SIGNATURE_SPEC.md" target="_blank" rel="noopener">Signature Specification</a></li>
+                    <li><a href="https://github.com/{{ repo_name }}/blob/main/doc/DEVELOPMENT.md" target="_blank" rel="noopener">Development Guide</a></li>
+                    <li><a href="https://github.com/{{ repo_name }}/blob/main/doc/DEPLOYMENT.md" target="_blank" rel="noopener">Deployment Guide</a></li>
+                </ul>
+            </section>
+        </main>
     </div>
+
+    <!-- Load JavaScript last -->
+    <script src="/static/js/main.js"></script>
 </body>
 </html>

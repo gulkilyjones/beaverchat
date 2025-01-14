@@ -3,44 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BookChat</title>
+    <title>BeaverChat</title>
+    <meta name="description" content="BeaverChat - A secure, Git-backed messaging application">
     <link rel="stylesheet" href="/static/css/style.css">
     <noscript>
         <link rel="stylesheet" href="/static/css/noscript.css">
     </noscript>
     <script src="/static/js/theme.js"></script>
     <script>
-        // Mark page as JavaScript-enabled
         document.documentElement.className = 'js';
     </script>
 </head>
 <body>
     <div class="container">
-        <!-- Header with username -->
+        <!-- Header with branding and controls -->
         <div class="header">
+            <a href="/" class="logo">BeaverChat</a>
+            
             <!-- No-JS username change form -->
             <form method="POST" action="/username" class="nojs-only username-control">
                 <input type="text" name="new_username" placeholder="New username" required>
                 <button type="submit">Change Username</button>
                 <span class="current-username">(Current: {{ username }})</span>
             </form>
+            
             <!-- JS-only username controls -->
             <div class="username-control js-only">
-                <button id="change-username-btn">
+                <button id="change-username-btn" aria-label="Change username">
                     <span id="username-display"></span>
-                    <span class="username-icon">✎</span>
+                    <span class="username-icon" aria-hidden="true">✎</span>
                 </button>
             </div>
+            
             <div class="nav-links">
                 <a href="/status" class="nav-link">System Status</a>
-                <button class="theme-toggle js-only" id="theme-toggle">
-                    <span id="theme-toggle-text">🌙</span>
+                <button class="theme-toggle js-only" id="theme-toggle" aria-label="Toggle dark mode">
+                    <span id="theme-toggle-text" aria-hidden="true">🌙</span>
                 </button>
             </div>
         </div>
 
-        <!-- Messages container -->
-        <div id="messages">
+        <!-- Main chat area -->
+        <main id="messages">
             <!-- No-JS refresh form -->
             <form method="GET" action="/" class="nojs-only refresh-form">
                 <button type="submit">Refresh Messages</button>
@@ -48,23 +52,35 @@
             <div id="messages-container">
                 <p>Loading messages...</p>
             </div>
-        </div>
+        </main>
 
-        <!-- Message input -->
+        <!-- Message input area -->
         <div class="message-form">
             <!-- No-JS message form -->
             <form id="message-form" method="POST" action="/messages" class="message-input-container nojs-only">
-                <textarea name="content" placeholder="Type your message here..." rows="1" required></textarea>
+                <textarea 
+                    name="content" 
+                    placeholder="Type your message here..." 
+                    rows="1" 
+                    required
+                    aria-label="Message input"></textarea>
                 <button type="submit">Send</button>
             </form>
+            
             <!-- JS message form -->
             <form id="js-message-form" class="message-input-container js-only">
-                <textarea id="message-input" placeholder="Type your message here..." rows="1" required></textarea>
+                <textarea 
+                    id="message-input" 
+                    placeholder="Type your message here..." 
+                    rows="1" 
+                    required
+                    aria-label="Message input"></textarea>
                 <button type="submit" id="send-button">Send</button>
             </form>
         </div>
 
-        <div id="global-verification-status" style="display: none;">
+        <!-- Verification status -->
+        <div id="global-verification-status" class="verification-status" role="status" aria-live="polite">
             Chat Verification Status: All Messages Verified
         </div>
     </div>
